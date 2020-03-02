@@ -6,39 +6,33 @@ const app = express();
 
 app.use(bodyParser.urlencoded({extended: true}));
 
-//displays index.html of root path
 app.get("/", function(req, res) {
-  res.sendFile(__dirname + "/index.html")
+  res.sendFile(__dirname + "/index.html");
 });
 
-//invoked after hitting go in the html form
 app.post("/", function(req, res) {
-    
-    // takes in the zip from the html form, display in // console. Takes in as string, ex. for zip 02139
-        var zip = String(req.body.zipInput);
-        console.log(req.body.zipInput);
-    
-    //build up the URL for the JSON query, API Key is // secret and needs to be obtained by signup 
+
         const units = "imperial";
-        const apiKey = "67f6b382921c1e89b39b20d4f9556f22";
-        const url = "https://api.openweathermap.org/data/2.5/weather?zip=" + zip +  "&units=" + units + "&APPID=" + apiKey;
-    
-    // this gets the data from Open WeatherPI
+        const query = req.body.cityName;
+        const apiKey = "5aff7aec1194d22b9dc26e7a6e86b8d6";
+        const url = "https://api.openweathermap.org/data/2.5/weather?q=" + query + "&appID=" + apiKey;
+  
     https.get(url, function(response){
         console.log(response.statusCode);
-        
-        // gets individual items from Open Weather API
+    
         response.on("data", function(data){
             const weatherData = JSON.parse(data);
             const temp = weatherData.main.temp;
-            const city = weatherData.name;
+            const windspeed = weatherData.wind.speed;
+            const humidity = weatherData.main.humidity;
             const weatherDescription = weatherData.weather[0].description;
             const icon = weatherData.weather[0].icon;
             const imageURL = "http://openweathermap.org/img/wn/" + icon + "@2x.png";
-            
-            // displays the output of the results
-            res.write("<h1> The weather is " + weatherDescription + "<h1>");
-            res.write("<h2>The Temperature in " + city + " " + zip + " is " + temp + " Degrees Fahrenheit<h2>");
+
+            res.write("<h1>The Temperature in " + query +  " is " + temp + " Degrees Fahrenheit.<h1>");
+            res.write("<h2> The weather is " + weatherDescription + ".<h2>");
+            res.write("<h2> The wind speed is " + windspeed + " Miles per Hour.<h2>");
+            res.write("<h2> The humidity is " + humidity + " percent.<h2>");
             res.write("<img src=" + imageURL +">");
             res.send();
         });
@@ -46,7 +40,7 @@ app.post("/", function(req, res) {
 })
 
 
-//Code will run on 3000 or any available open port
+
 app.listen(process.env.PORT || 3000, function() {
-console.log ("Server is running on port")
+console.log ("Server is running on port");
 });
